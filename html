@@ -1,6 +1,21 @@
 <script>
 (function () {
   try {
+    var setCookie = function (name, value) {
+      document.cookie = name + "=" + encodeURIComponent(value) + "; path=/; Secure; SameSite=Strict";
+    };
+
+    var getCookie = function (name) {
+      var nameEQ = name + "=";
+      var cookies = document.cookie ? document.cookie.split(";") : [];
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        while (cookie.charAt(0) === " ") cookie = cookie.substring(1, cookie.length);
+        if (cookie.indexOf(nameEQ) === 0) return decodeURIComponent(cookie.substring(nameEQ.length, cookie.length));
+      }
+      return null;
+    };
+
     // --- CONFIG FLAGS (set any combination to true) ---
     var SHOW_ON_IPHONE_ONLY   = true;
     var SHOW_ON_ANDROID_ONLY  = true;
@@ -41,6 +56,8 @@
 
     // Prevent duplicate modal
     if (document.getElementById("gtm-device-modal")) return;
+
+    if (getCookie("tap_modal_dismissed") === "true") return;
 
     var init = function () {
       var container = document.querySelector("#wrap.TAPHomePage") || document.body;
@@ -119,6 +136,7 @@
       document.documentElement.style.overflow = "hidden";
 
       var closeModal = function () {
+        setCookie("tap_modal_dismissed", "true");
         document.documentElement.style.overflow = prevOverflow || "";
         if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
         if (styleEl && styleEl.parentNode) styleEl.parentNode.removeChild(styleEl);
